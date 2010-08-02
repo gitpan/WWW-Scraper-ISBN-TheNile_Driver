@@ -1,4 +1,8 @@
 Revision history for Perl extension WWW-Scraper-ISBN-TheNile_Driver.
 
+0.02    02/08/2010
+        - added connection protection if client or server offline.
+        - documentation updates.
+
 0.01	30/07/2010
         - initial release
