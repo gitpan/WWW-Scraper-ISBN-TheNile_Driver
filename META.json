@@ -1,6 +1,6 @@
 {
     "name": "WWW-Scraper-ISBN-TheNile_Driver",
-    "version": "0.02",
+    "version": "0.03",
     "abstract": "Search driver for TheNile online book catalog",
     "author": ["Barbie <barbie@cpan.org>"],
 
@@ -21,14 +21,14 @@
     "prereqs" : {
         "runtime" : {
             "requires" : {
-                "WWW::Mechanize": "0",
+                "WWW::Mechanize": "1.60",
                 "WWW::Scraper::ISBN": "0.25",
                 "WWW::Scraper::ISBN::Driver": "0.18"
             }
         },
         "test" : {
             "requires": {
-                "Test::More": "0.62"
+                "Test::More": "0.45"
             },
             "recommends": {
                 "Test::More": "0.70",
@@ -43,7 +43,7 @@
     "provides": {
         "WWW::Scraper::ISBN::TheNile_Driver": {
             "file": "lib/WWW/Scraper/ISBN/TheNile_Driver.pm",
-            "version": "0.02"
+            "version": "0.03"
         }
     },
     "no_index": {

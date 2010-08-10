@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION @ISA);
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 #--------------------------------------------------------------------------
 
@@ -91,7 +91,7 @@ sub search {
 
     eval { $mech->get( SEARCH . $isbn ) };
     return $self->handler("TheNile website appears to be unavailable.")
-	    unless($@ || $mech->success());
+	    if($@ || !$mech->success() || !$mech->content());
 
 	# The Book page
     my $html = $mech->content();
