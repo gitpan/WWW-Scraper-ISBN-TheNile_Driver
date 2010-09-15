@@ -7,6 +7,9 @@ use WWW::Scraper::ISBN;
 
 ###########################################################
 
+my $DRIVER          = 'TheNile';
+my $CHECK_DOMAIN    = 'www.google.com';
+
 my %tests = (
     '0099547937' => [
         [ 'is',     'isbn',         '9780099547938' ],
@@ -75,12 +78,10 @@ my %tests = (
 );
 
 my $tests = 0;
-for my $isbn (keys %tests) { $tests += scalar( @{ $tests{$isbn} } ) }
+for my $isbn (keys %tests) { $tests += scalar( @{ $tests{$isbn} } ) + 2 }
 
 
 ###########################################################
-
-my $CHECK_DOMAIN = 'www.google.com';
 
 my $scraper = WWW::Scraper::ISBN->new();
 isa_ok($scraper,'WWW::Scraper::ISBN');
@@ -88,7 +89,7 @@ isa_ok($scraper,'WWW::Scraper::ISBN');
 SKIP: {
 	skip "Can't see a network connection", $tests+1   if(pingtest($CHECK_DOMAIN));
 
-	$scraper->drivers("TheNile");
+	$scraper->drivers($DRIVER);
 
     # this ISBN doesn't exist
 	my $isbn = "1234567890";
@@ -101,7 +102,7 @@ SKIP: {
     elsif($record->found) {
         ok(0,'Unexpectedly found a non-existent book');
     } else {
-		like($record->error,qr/Failed to find that book on TheNile website|website appears to be unavailable/);
+		like($record->error,qr/Failed to find that book|website appears to be unavailable/);
     }
 
     for my $isbn (keys %tests) {
@@ -117,7 +118,7 @@ SKIP: {
             }
 
             is($record->found,1);
-            is($record->found_in,'TheNile');
+            is($record->found_in,$DRIVER);
 
             my $book = $record->book;
             for my $test (@{ $tests{$isbn} }) {

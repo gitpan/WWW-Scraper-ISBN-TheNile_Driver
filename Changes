@@ -1,5 +1,8 @@
 Revision history for Perl extension WWW-Scraper-ISBN-TheNile_Driver.
 
+0.05    15/09/2010
+        - further refinement of tests.
+
 0.04    15/09/2010
         - reworked test structure, so easier to add sample sets.
 

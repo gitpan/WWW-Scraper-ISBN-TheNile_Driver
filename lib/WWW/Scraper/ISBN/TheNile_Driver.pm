@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION @ISA);
-$VERSION = '0.04';
+$VERSION = '0.05';
 
 #--------------------------------------------------------------------------
 
@@ -97,7 +97,7 @@ sub search {
     my $html = $mech->content();
 
 	return $self->handler("Failed to find that book on TheNile website.")
-		if($html =~ m!We're sorry, but your search returned no results.!si);
+		if($html =~ m!We're sorry, but your search returned no results.|This book is currently unavailable!si);
     
 #print STDERR "\n# content1=[\n$html\n]\n";
 
