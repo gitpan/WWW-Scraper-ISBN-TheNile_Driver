@@ -2,8 +2,81 @@
 use strict;
 
 use lib './t';
-use Test::More tests => 59;
+use Test::More tests => 65;
 use WWW::Scraper::ISBN;
+
+###########################################################
+
+my %tests = (
+    '0099547937' => [
+        [ 'is',     'isbn',         '9780099547938' ],
+        [ 'is',     'isbn10',       '0099547937'    ],
+        [ 'is',     'isbn13',       '9780099547938' ],
+        [ 'is',     'ean13',        '9780099547938' ],
+        [ 'is',     'title',        'Ford County'   ],
+        [ 'is',     'author',       'John Grisham'  ],
+        [ 'is',     'publisher',    'Cornerstone'   ],
+        [ 'is',     'pubdate',      '2010'          ],
+        [ 'is',     'binding',      'Paperback'     ],
+        [ 'is',     'pages',        '352'           ],
+        [ 'is',     'width',        '111'           ],
+        [ 'is',     'height',       '178'           ],
+        [ 'is',     'weight',       undef           ],
+        [ 'is',     'image_link',   'http://tncdn.net/1/978/009/9547938.jpg' ],
+        [ 'is',     'thumb_link',   'http://tncdn.net/1/978/009/9547938.jpg' ],
+        [ 'like',   'description',  qr|John Grisham takes you into the heart of America's Deep South| ],
+        [ 'like',   'book_link',    qr|http://www.thenile.com.au/books/John-Grisham/Ford-County/9780099547938/| ]
+    ],
+    '9780007203055' => [
+        [ 'is',     'isbn',         '9780007203055'             ],
+        [ 'is',     'isbn10',       '0007203055'                ],
+        [ 'is',     'isbn13',       '9780007203055'             ],
+        [ 'is',     'ean13',        '9780007203055'             ],
+        [ 'like',   'author',       qr/Simon Ball/              ],
+        [ 'is',     'title',        q|Bitter Sea|               ],
+        [ 'is',     'publisher',    'Harpercollins Publishers'  ],
+        [ 'is',     'pubdate',      '2010'                      ],
+        [ 'is',     'binding',      'Paperback'                 ],
+        [ 'is',     'pages',        416                         ],
+        [ 'is',     'width',        undef                       ],
+        [ 'is',     'height',       undef                       ],
+        [ 'is',     'weight',       321                         ],
+        [ 'is',     'image_link',   'http://tncdn.net/1/978/000/7203055.jpg'    ],
+        [ 'is',     'thumb_link',   'http://tncdn.net/1/978/000/7203055.jpg'    ],
+        [ 'like',   'description',  qr|The Mediterranean was indeed|            ],
+        [ 'like',   'book_link',    qr|http://www.thenile.com.au/books/Simon-Ball/Bitter-Sea/9780007203055/| ]
+    ],
+    '9780718155896' => [
+        [ 'is',     'isbn',         '9780718155896'             ],
+        [ 'is',     'isbn10',       '0718155890'                ],
+        [ 'is',     'isbn13',       '9780718155896'             ],
+        [ 'is',     'ean13',        '9780718155896'             ],
+        [ 'is',     'author',       q|Clive Cussler, Justin Scott|  ],
+        [ 'is',     'title',        q|The Spy|                  ],
+        [ 'is',     'publisher',    'Penguin Books Ltd'         ],
+        [ 'is',     'pubdate',      '2010'                      ],
+        [ 'is',     'binding',      'Paperback'                 ],
+        [ 'is',     'pages',        436                         ],
+        [ 'is',     'width',        152                         ],
+        [ 'is',     'height',       230                         ],
+        [ 'is',     'weight',       undef                       ],
+        [ 'is',     'image_link',   'http://tncdn.net/1/978/071/8155896.jpg'    ],
+        [ 'is',     'thumb_link',   'http://tncdn.net/1/978/071/8155896.jpg'    ],
+        [ 'like',   'description',  qr|international tensions are mounting as the world plunges towards war| ],
+        [ 'like',   'book_link',    qr|http://www.thenile.com.au/books/Clive-Cussler-Justin-Scot/The-Spy/9780718155896/| ],
+    ],
+    
+    '9781408307557' => [
+        [ 'is',     'pages',        48                          ],
+        [ 'is',     'width',        198                         ],
+        [ 'is',     'height',       129                         ],
+        [ 'is',     'weight',       150                         ],
+    ],
+);
+
+my $tests = 0;
+for my $isbn (keys %tests) { $tests += scalar( @{ $tests{$isbn} } ) }
+
 
 ###########################################################
 
@@ -13,7 +86,7 @@ my $scraper = WWW::Scraper::ISBN->new();
 isa_ok($scraper,'WWW::Scraper::ISBN');
 
 SKIP: {
-	skip "Can't see a network connection", 58   if(pingtest($CHECK_DOMAIN));
+	skip "Can't see a network connection", $tests+1   if(pingtest($CHECK_DOMAIN));
 
 	$scraper->drivers("TheNile");
 
@@ -31,108 +104,30 @@ SKIP: {
 		like($record->error,qr/Failed to find that book on TheNile website|website appears to be unavailable/);
     }
 
-	$isbn   = "0099547937";
-	$record = $scraper->search($isbn);
-    my $error  = $record->error || '';
+    for my $isbn (keys %tests) {
+        $record = $scraper->search($isbn);
+        my $error  = $record->error || '';
 
-    SKIP: {
-        skip "Website unavailable", 19   if($error =~ /website appears to be unavailable/);
+        SKIP: {
+            skip "Website unavailable", scalar(@{ $tests{$isbn} }) + 2   
+                if($error =~ /website appears to be unavailable/);
 
-        unless($record->found) {
-            diag($record->error);
-        } else {
+            unless($record->found) {
+                diag($record->error);
+            }
+
             is($record->found,1);
             is($record->found_in,'TheNile');
 
             my $book = $record->book;
-            is($book->{'isbn'},         '9780099547938'         ,'.. isbn found');
-            is($book->{'isbn10'},       '0099547937'            ,'.. isbn10 found');
-            is($book->{'isbn13'},       '9780099547938'         ,'.. isbn13 found');
-            is($book->{'ean13'},        '9780099547938'         ,'.. ean13 found');
-            is($book->{'title'},        'Ford County'           ,'.. title found');
-            is($book->{'author'},       'John Grisham'          ,'.. author found');
-            like($book->{'book_link'},  qr|http://www.thenile.com.au/books/John-Grisham/Ford-County/9780099547938/|);
-            is($book->{'image_link'},   'http://tncdn.net/1/978/009/9547938.jpg');
-            is($book->{'thumb_link'},   'http://tncdn.net/1/978/009/9547938.jpg');
-            like($book->{'description'},qr|John Grisham takes you into the heart of America's Deep South|);
-            is($book->{'publisher'},    'Cornerstone'           ,'.. publisher found');
-            is($book->{'pubdate'},      '2010'                  ,'.. pubdate found');
-            is($book->{'binding'},      'Paperback'             ,'.. binding found');
-            is($book->{'pages'},        '352'                   ,'.. pages found');
-            is($book->{'width'},        '111'                   ,'.. width found');
-            is($book->{'height'},       '178'                   ,'.. height found');
-            is($book->{'weight'},       undef                   ,'.. weight found');
-        }
-    }
+            for my $test (@{ $tests{$isbn} }) {
+                if($test->[0] eq 'ok')          { ok(       $book->{$test->[1]},             ".. '$test->[1]' found [$isbn]"); } 
+                elsif($test->[0] eq 'is')       { is(       $book->{$test->[1]}, $test->[2], ".. '$test->[1]' found [$isbn]"); } 
+                elsif($test->[0] eq 'isnt')     { isnt(     $book->{$test->[1]}, $test->[2], ".. '$test->[1]' found [$isbn]"); } 
+                elsif($test->[0] eq 'like')     { like(     $book->{$test->[1]}, $test->[2], ".. '$test->[1]' found [$isbn]"); } 
+                elsif($test->[0] eq 'unlike')   { unlike(   $book->{$test->[1]}, $test->[2], ".. '$test->[1]' found [$isbn]"); }
 
-	$isbn   = "9780007203055";
-	$record = $scraper->search($isbn);
-    $error  = $record->error || '';
-
-    SKIP: {
-        skip "Website unavailable", 19   if($error =~ /website appears to be unavailable/);
-
-        unless($record->found) {
-            diag($record->error);
-        } else {
-            is($record->found,1);
-            is($record->found_in,'TheNile');
-
-            my $book = $record->book;
-            is($book->{'isbn'},         '9780007203055'         ,'.. isbn found');
-            is($book->{'isbn10'},       '0007203055'            ,'.. isbn10 found');
-            is($book->{'isbn13'},       '9780007203055'         ,'.. isbn13 found');
-            is($book->{'ean13'},        '9780007203055'         ,'.. ean13 found');
-            like($book->{'author'},     qr/Simon Ball/          ,'.. author found');
-            is($book->{'title'},        q|Bitter Sea|           ,'.. title found');
-            like($book->{'book_link'},  qr|http://www.thenile.com.au/books/Simon-Ball/Bitter-Sea/9780007203055/|);
-            is($book->{'image_link'},   'http://tncdn.net/1/978/000/7203055.jpg');
-            is($book->{'thumb_link'},   'http://tncdn.net/1/978/000/7203055.jpg');
-            like($book->{'description'},qr|The Mediterranean was indeed|);
-            is($book->{'publisher'},    'Harpercollins Publishers'  ,'.. publisher found');
-            is($book->{'pubdate'},      '2010'                  ,'.. pubdate found');
-            is($book->{'binding'},      'Paperback'             ,'.. binding found');
-            is($book->{'pages'},        416                     ,'.. pages found');
-            is($book->{'width'},        undef                   ,'.. width found');
-            is($book->{'height'},       undef                   ,'.. height found');
-            is($book->{'weight'},       321                     ,'.. weight found');
-
-            #use Data::Dumper;
-            #diag("book=[".Dumper($book)."]");
-        }
-    }
-    
-    $isbn   = "9780718155896";
-	$record = $scraper->search($isbn);
-    $error  = $record->error || '';
-
-    SKIP: {
-        skip "Website unavailable", 19   if($error =~ /website appears to be unavailable/);
-
-        unless($record->found) {
-            diag($record->error);
-        } else {
-            is($record->found,1);
-            is($record->found_in,'TheNile');
-
-            my $book = $record->book;
-            is($book->{'isbn'},         '9780718155896'         ,'.. isbn found');
-            is($book->{'isbn10'},       '0718155890'            ,'.. isbn10 found');
-            is($book->{'isbn13'},       '9780718155896'         ,'.. isbn13 found');
-            is($book->{'ean13'},        '9780718155896'         ,'.. ean13 found');
-            is($book->{'author'},       q|Clive Cussler, Justin Scott|  ,'.. author found');
-            is($book->{'title'},        q|The Spy|              ,'.. title found');
-            like($book->{'book_link'},  qr|http://www.thenile.com.au/books/Clive-Cussler-Justin-Scot/The-Spy/9780718155896/|);
-            is($book->{'image_link'},   'http://tncdn.net/1/978/071/8155896.jpg');
-            is($book->{'thumb_link'},   'http://tncdn.net/1/978/071/8155896.jpg');
-            like($book->{'description'},qr|international tensions are mounting as the world plunges towards war|);
-            is($book->{'publisher'},    'Penguin Books Ltd'     ,'.. publisher found');
-            is($book->{'pubdate'},      '2010'                  ,'.. pubdate found');
-            is($book->{'binding'},      'Paperback'             ,'.. binding found');
-            is($book->{'pages'},        436                     ,'.. pages found');
-            is($book->{'width'},        152                     ,'.. width found');
-            is($book->{'height'},       230                     ,'.. height found');
-            is($book->{'weight'},       undef                   ,'.. weight found');
+            }
 
             #use Data::Dumper;
             #diag("book=[".Dumper($book)."]");
