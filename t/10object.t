@@ -43,18 +43,18 @@ my %tests = (
         [ 'is',     'pages',        416                         ],
         [ 'is',     'width',        undef                       ],
         [ 'is',     'height',       undef                       ],
-        [ 'is',     'weight',       321                         ],
+        [ 'is',     'weight',       undef                       ],
         [ 'is',     'image_link',   'http://tncdn.net/1/978/000/7203055.jpg'    ],
         [ 'is',     'thumb_link',   'http://tncdn.net/1/978/000/7203055.jpg'    ],
-        [ 'like',   'description',  qr|The Mediterranean was indeed|            ],
-        [ 'like',   'book_link',    qr|http://www.thenile.com.au/books/Simon-Ball/Bitter-Sea/9780007203055/| ]
+        [ 'like',   'description',  qr|A gripping history of the Mediterranean campaigns|                       ],
+        [ 'like',   'book_link',    qr|http://www.thenile.com.au/books/Simon-Ball/Bitter-Sea/9780007203055/|    ]
     ],
     '9780718155896' => [
         [ 'is',     'isbn',         '9780718155896'             ],
         [ 'is',     'isbn10',       '0718155890'                ],
         [ 'is',     'isbn13',       '9780718155896'             ],
         [ 'is',     'ean13',        '9780718155896'             ],
-        [ 'is',     'author',       q|Clive Cussler, Justin Scott|  ],
+        [ 'like',   'author',       qr|Clive Cussler|           ],
         [ 'is',     'title',        q|The Spy|                  ],
         [ 'is',     'publisher',    'Penguin Books Ltd'         ],
         [ 'is',     'pubdate',      '2010'                      ],
@@ -66,14 +66,14 @@ my %tests = (
         [ 'is',     'image_link',   'http://tncdn.net/1/978/071/8155896.jpg'    ],
         [ 'is',     'thumb_link',   'http://tncdn.net/1/978/071/8155896.jpg'    ],
         [ 'like',   'description',  qr|international tensions are mounting as the world plunges towards war| ],
-        [ 'like',   'book_link',    qr|http://www.thenile.com.au/books/Clive-Cussler-Justin-Scot/The-Spy/9780718155896/| ],
+        [ 'like',   'book_link',    qr|http://www.thenile.com.au/books/Clive-Cussler/The-Spy/9780718155896/| ],
     ],
     
     '9781408307557' => [
         [ 'is',     'pages',        48                          ],
-        [ 'is',     'width',        198                         ],
-        [ 'is',     'height',       129                         ],
-        [ 'is',     'weight',       150                         ],
+        [ 'is',     'width',        206                         ],
+        [ 'is',     'height',       128                         ],
+        [ 'is',     'weight',       undef                       ],
     ],
 );
 
@@ -141,7 +141,11 @@ SKIP: {
 # crude, but it'll hopefully do ;)
 sub pingtest {
     my $domain = shift or return 0;
-    system("ping -q -c 1 $domain >/dev/null 2>&1");
+    my $cmd =   $^O =~ /solaris/i                           ? "ping -s $domain 56 1" :
+                $^O =~ /dos|os2|mswin32|netware|cygwin/i    ? "ping -n 1 $domain "
+                                                            : "ping -c 1 $domain >/dev/null 2>&1";
+
+    system($cmd);
     my $retcode = $? >> 8;
     # ping returns 1 if unable to connect
     return $retcode;

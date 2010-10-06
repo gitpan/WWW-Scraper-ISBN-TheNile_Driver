@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION @ISA);
-$VERSION = '0.05';
+$VERSION = '0.06';
 
 #--------------------------------------------------------------------------
 
@@ -50,8 +50,8 @@ use constant	SEARCH	=> 'http://www.thenile.com.au/search.php?s=';
 
 =item C<search()>
 
-Creates a query string, then passes the appropriate form fields to the TheNile
-server.
+Creates a query string, then passes the appropriate form fields to the 
+TheNile server.
 
 The returned page should be the correct catalog page for that ISBN. If not the
 function returns zero and allows the next driver in the chain to have a go. If
@@ -97,28 +97,31 @@ sub search {
     my $html = $mech->content();
 
 	return $self->handler("Failed to find that book on TheNile website.")
-		if($html =~ m!We're sorry, but your search returned no results.|This book is currently unavailable!si);
+		if($html =~ m!Sorry your search.*?did not return any results|This book is currently unavailable!si);
     
 #print STDERR "\n# content1=[\n$html\n]\n";
 
     my $data;
-    ($data->{image})                    = $html =~ m!(http://tncdn.net/\d+/\d+/\d+/\d+.jpg)!i;
-    ($data->{thumb})                    = $html =~ m!(http://tncdn.net/\d+/\d+/\d+/\d+.jpg)!i;
-    ($data->{isbn13})                   = $html =~ m!<th>ISBN-13:</th>\s*<td>(\d+)</td>!i;
-    ($data->{isbn10})                   = $html =~ m!<th>ISBN:</th>\s*<td>(\d+)</td>!i;
-    ($data->{author})                   = $html =~ m!tr><th>Authors:</th><td>((?:<a[^>]+>[^<]+</a>[,\s]*)+)</td></tr>!i;
-    ($data->{title})                    = $html =~ m!<tr><th>Title:</th><td>([^,<]+)</td></tr>!i;
-    ($data->{publisher})                = $html =~ m!tr><th>Publisher:</th><td>((?:<a[^>]+>[^<]+</a>[,\s]*)+)</td></tr>!i;
-    ($data->{pubdate})                  = $html =~ m!<tr><th>Year:</th><td>([^<]+)</td></tr>!i;
-    ($data->{binding})                  = $html =~ m!<th>Format:</th>\s*<td>([^<]+)</td>!s;
-    ($data->{pages})                    = $html =~ m!<tr><th>Pages:</th><td>([\d.]+)</td></tr>!s;
-    ($data->{weight})                   = $html =~ m!<tr><th>Weight:</th><td>(\d+)g</td></tr>!s;
-    ($data->{width},$data->{height})    = $html =~ m!<tr><th>Dimensions:</th><td>([\d.]+)mm x ([\d.]+)mm</td></tr>!s;
-    ($data->{description})              = $html =~ m!<strong>Annotation</strong><br>([^<]+)!;
-    ($data->{description})              = $html =~ m!<strong>Publisher Description</strong><br>([^<]+)!    unless($data->{description});
+    ($data->{image})                    = $html =~ m!(http://tncdn.net/\d+/\d+/\d+/\d+.jpg)!si;
+    ($data->{thumb})                    = $html =~ m!(http://tncdn.net/\d+/\d+/\d+/\d+.jpg)!si;
+    ($data->{isbn13},$data->{isbn10})   = $html =~ m!<li><span>ISBN</span>\s*(\d+)\s*/\s*(\d+)\s*</li>!si;
+    ($data->{author})                   = $html =~ m!<li><span>Authors?</span>\s*((?:<a[^>]+>[^<]+</a>(?:\s*(?:and|,)\s*)?)+)</li>!si;
+    ($data->{author})                   = $html =~ m!<li><span>Authors?</span>\s*([^<]+)</li>!si    unless($data->{author});
+    ($data->{title})                    = $html =~ m!<li><span>Title</span>\s*([^,<]+)</li>!si;
+    ($data->{publisher})                = $html =~ m!<li><span>Publisher</span>\s*((?:<a[^>]+>[^<]+</a>[,\s]*)+)</li>!si;
+    ($data->{publisher})                = $html =~ m!<li><span>Publisher</span>\s*([^<]+)</li>!si   unless($data->{publisher});
+    ($data->{pubdate})                  = $html =~ m!<li><span>Year</span>\s*([^<]+)</li>!si;
+    ($data->{binding})                  = $html =~ m!<li><span>Format</span>\s*([^<]+)</li>!si;
+    ($data->{pages})                    = $html =~ m!<li><span>Pages</span>\s*([\d.]+)</li>!si;
+    ($data->{weight})                   = $html =~ m!<li><span>Weight</span>\s*(\d+)g</li>!si;
+    ($data->{width},$data->{height})    = $html =~ m!<li><span>Dimensions</span>\s*([\d.]+)mm x ([\d.]+)mm</li>!si;
+    ($data->{description})              = $html =~ m!<h4>Annotation</h4>\s*</div>\s*<div class="content readable">(.*?)</div>!si;
+    ($data->{description})              = $html =~ m!<h4>Publisher Description</h4>\s*</div>\s*<div class="content readable">(.*?)</div>!si unless($data->{description});
 
-    $data->{author} =~ s!<[^>]+>!!g     if($data->{author});
-    $data->{publisher} =~ s!<[^>]+>!!g  if($data->{publisher});
+    
+    for(qw(author publisher description)) {
+        $data->{$_} =~ s!<[^>]+>!!g if($data->{$_});
+    }
 
 #use Data::Dumper;
 #print STDERR "\n# " . Dumper($data);
