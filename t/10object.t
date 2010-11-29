@@ -25,8 +25,8 @@ my %tests = (
         [ 'is',     'width',        '111'           ],
         [ 'is',     'height',       '178'           ],
         [ 'is',     'weight',       undef           ],
-        [ 'is',     'image_link',   'http://tncdn.net/1/978/009/9547938.jpg' ],
-        [ 'is',     'thumb_link',   'http://tncdn.net/1/978/009/9547938.jpg' ],
+        [ 'is',     'image_link',   'http://cdn.tncdn.net/dyn/230/978/009/9547938.jpg' ],
+        [ 'is',     'thumb_link',   'http://cdn.tncdn.net/dyn/230/978/009/9547938.jpg' ],
         [ 'like',   'description',  qr|John Grisham takes you into the heart of America's Deep South| ],
         [ 'like',   'book_link',    qr|http://www.thenile.com.au/books/John-Grisham/Ford-County/9780099547938/| ]
     ],
@@ -44,8 +44,8 @@ my %tests = (
         [ 'is',     'width',        undef                       ],
         [ 'is',     'height',       undef                       ],
         [ 'is',     'weight',       undef                       ],
-        [ 'is',     'image_link',   'http://tncdn.net/1/978/000/7203055.jpg'    ],
-        [ 'is',     'thumb_link',   'http://tncdn.net/1/978/000/7203055.jpg'    ],
+        [ 'is',     'image_link',   'http://cdn.tncdn.net/dyn/230/978/000/7203055.jpg'    ],
+        [ 'is',     'thumb_link',   'http://cdn.tncdn.net/dyn/230/978/000/7203055.jpg'    ],
         [ 'like',   'description',  qr|A gripping history of the Mediterranean campaigns|                       ],
         [ 'like',   'book_link',    qr|http://www.thenile.com.au/books/Simon-Ball/Bitter-Sea/9780007203055/|    ]
     ],
@@ -63,8 +63,8 @@ my %tests = (
         [ 'is',     'width',        152                         ],
         [ 'is',     'height',       230                         ],
         [ 'is',     'weight',       undef                       ],
-        [ 'is',     'image_link',   'http://tncdn.net/1/978/071/8155896.jpg'    ],
-        [ 'is',     'thumb_link',   'http://tncdn.net/1/978/071/8155896.jpg'    ],
+        [ 'is',     'image_link',   'http://cdn.tncdn.net/dyn/230/978/071/8155896.jpg'    ],
+        [ 'is',     'thumb_link',   'http://cdn.tncdn.net/dyn/230/978/071/8155896.jpg'    ],
         [ 'like',   'description',  qr|international tensions are mounting as the world plunges towards war| ],
         [ 'like',   'book_link',    qr|http://www.thenile.com.au/books/Clive-Cussler/The-Spy/9780718155896/| ],
     ],
@@ -112,6 +112,8 @@ SKIP: {
         SKIP: {
             skip "Website unavailable", scalar(@{ $tests{$isbn} }) + 2   
                 if($error =~ /website appears to be unavailable/);
+            skip "Book unavailable", scalar(@{ $tests{$isbn} }) + 2   
+                if($error =~ /Failed to find that book/ || !$record->found);
 
             unless($record->found) {
                 diag($record->error);
@@ -145,8 +147,12 @@ sub pingtest {
                 $^O =~ /dos|os2|mswin32|netware|cygwin/i    ? "ping -n 1 $domain "
                                                             : "ping -c 1 $domain >/dev/null 2>&1";
 
-    system($cmd);
-    my $retcode = $? >> 8;
-    # ping returns 1 if unable to connect
+    eval { system($cmd) }; 
+    if($@) {                # can't find ping, or wrong arguments?
+        diag();
+        return 1;
+    }
+
+    my $retcode = $? >> 8;  # ping returns 1 if unable to connect
     return $retcode;
 }

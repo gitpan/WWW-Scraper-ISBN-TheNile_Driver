@@ -1,5 +1,10 @@
 Revision history for Perl extension WWW-Scraper-ISBN-TheNile_Driver.
 
+0.07    29/11/2010
+        - amended pingtest() in network tests.
+        - added further skip test if test books are withdrawn from the site.
+        - image path update.
+
 0.06    06/10/2010
         - fixed skip count.
         - provided alternate ping test methods.

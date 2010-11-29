@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION @ISA);
-$VERSION = '0.06';
+$VERSION = '0.07';
 
 #--------------------------------------------------------------------------
 
@@ -102,8 +102,8 @@ sub search {
 #print STDERR "\n# content1=[\n$html\n]\n";
 
     my $data;
-    ($data->{image})                    = $html =~ m!(http://tncdn.net/\d+/\d+/\d+/\d+.jpg)!si;
-    ($data->{thumb})                    = $html =~ m!(http://tncdn.net/\d+/\d+/\d+/\d+.jpg)!si;
+    ($data->{image})                    = $html =~ m!(http://cdn.tncdn.net/dyn/\d+/\d+/\d+/\d+.jpg)!si;
+    ($data->{thumb})                    = $html =~ m!(http://cdn.tncdn.net/dyn/\d+/\d+/\d+/\d+.jpg)!si;
     ($data->{isbn13},$data->{isbn10})   = $html =~ m!<li><span>ISBN</span>\s*(\d+)\s*/\s*(\d+)\s*</li>!si;
     ($data->{author})                   = $html =~ m!<li><span>Authors?</span>\s*((?:<a[^>]+>[^<]+</a>(?:\s*(?:and|,)\s*)?)+)</li>!si;
     ($data->{author})                   = $html =~ m!<li><span>Authors?</span>\s*([^<]+)</li>!si    unless($data->{author});
@@ -117,7 +117,6 @@ sub search {
     ($data->{width},$data->{height})    = $html =~ m!<li><span>Dimensions</span>\s*([\d.]+)mm x ([\d.]+)mm</li>!si;
     ($data->{description})              = $html =~ m!<h4>Annotation</h4>\s*</div>\s*<div class="content readable">(.*?)</div>!si;
     ($data->{description})              = $html =~ m!<h4>Publisher Description</h4>\s*</div>\s*<div class="content readable">(.*?)</div>!si unless($data->{description});
-
     
     for(qw(author publisher description)) {
         $data->{$_} =~ s!<[^>]+>!!g if($data->{$_});
