@@ -1,5 +1,9 @@
 Revision history for Perl extension WWW-Scraper-ISBN-TheNile_Driver.
 
+0.09    06/05/2011
+        - upgraded to Test::CPAN::Meta::JSON for tests.
+        - added conversion routines due to problems with ISBN10 searches.
+
 0.08    14/02/2011
         - updated test due to data change.
 
