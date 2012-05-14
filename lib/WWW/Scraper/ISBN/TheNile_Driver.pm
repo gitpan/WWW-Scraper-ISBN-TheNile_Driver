@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION @ISA);
-$VERSION = '0.09';
+$VERSION = '0.10';
 
 #--------------------------------------------------------------------------
 
@@ -103,11 +103,11 @@ sub search {
 	return $self->handler("Failed to find that book on TheNile website.")
 		if($html =~ m!Sorry your search.*?did not return any results|This book is currently unavailable!si);
     
-#print STDERR "\n# content1=[\n$html\n]\n";
+#print STDERR "\n# html=[\n$html\n]\n";
 
     my $data;
-    ($data->{image})                    = $html =~ m!(http://cdn.tncdn.net/dyn/\d+/\d+/\d+/\d+.jpg)!si;
-    ($data->{thumb})                    = $html =~ m!(http://cdn.tncdn.net/dyn/\d+/\d+/\d+/\d+.jpg)!si;
+    ($data->{image})                    = $html =~ m!(http://c\d+\.mrcdn\.net/[\w\.\/]+\.jpg)!si;
+    ($data->{thumb})                    = $html =~ m!(http://c\d+\.mrcdn\.net/[\w\.\/]+\.jpg)!si;
     ($data->{isbn13},$data->{isbn10})   = $html =~ m!<li><span>ISBN</span>\s*(\d+)\s*/\s*(\d+)\s*</li>!si;
     ($data->{author})                   = $html =~ m!<li><span>Authors?</span>\s*((?:<a[^>]+>[^<]+</a>(?:\s*(?:and|,)\s*)?)+)</li>!si;
     ($data->{author})                   = $html =~ m!<li><span>Authors?</span>\s*([^<]+)</li>!si    unless($data->{author});
@@ -118,7 +118,7 @@ sub search {
     ($data->{binding})                  = $html =~ m!<li><span>Format</span>\s*([^<]+)</li>!si;
     ($data->{pages})                    = $html =~ m!<li><span>Pages</span>\s*([\d.]+)</li>!si;
     ($data->{weight})                   = $html =~ m!<li><span>Weight</span>\s*(\d+)g</li>!si;
-    ($data->{width},$data->{height})    = $html =~ m!<li><span>Dimensions</span>\s*([\d.]+)mm x ([\d.]+)mm</li>!si;
+    ($data->{width},$data->{height})    = $html =~ m!<li><span>Dimensions</span>\s*([\d.]+)mm x ([\d.]+)mm(?: x [\d.]+mm)?</li>!si;
     ($data->{description})              = $html =~ m!<h4>Annotation</h4>\s*</div>\s*<div class="content readable">(.*?)</div>!si;
     ($data->{description})              = $html =~ m!<h4>Publisher Description</h4>\s*</div>\s*<div class="content readable">(.*?)</div>!si unless($data->{description});
     
@@ -262,7 +262,7 @@ RT system (http://rt.cpan.org/Public/Dist/Display.html?Name=WWW-Scraper-ISBN-The
 However, it would help greatly if you are able to pinpoint problems or even
 supply a patch.
 
-Fixes are dependant upon their severity and my availablity. Should a fix not
+Fixes are dependent upon their severity and my availability. Should a fix not
 be forthcoming, please feel free to (politely) remind me.
 
 =head1 AUTHOR
@@ -272,7 +272,7 @@ be forthcoming, please feel free to (politely) remind me.
 
 =head1 COPYRIGHT & LICENSE
 
-  Copyright (C) 2010,2011 Barbie for Miss Barbell Productions
+  Copyright (C) 2010-2012 Barbie for Miss Barbell Productions
 
   This module is free software; you can redistribute it and/or
   modify it under the Artistic Licence v2.
