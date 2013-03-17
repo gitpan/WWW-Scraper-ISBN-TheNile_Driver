@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION @ISA);
-$VERSION = '0.10';
+$VERSION = '0.11';
 
 #--------------------------------------------------------------------------
 
@@ -89,6 +89,7 @@ sub search {
     return $self->handler("Invalid ISBN specified [$isbn]")   
         if(!$ean || (length $isbn == 13 && $isbn ne $ean)
                  || (length $isbn == 10 && $isbn ne $self->convert_to_isbn10($ean)));
+    $isbn = $ean;
 
     my $mech = WWW::Mechanize->new();
     $mech->agent_alias( 'Linux Mozilla' );
@@ -152,7 +153,9 @@ sub search {
 		'pages'		    => $data->{pages},
 		'weight'		=> $data->{weight},
 		'width'		    => $data->{width},
-		'height'		=> $data->{height}
+		'height'		=> $data->{height},
+		'depth'		    => $data->{depth},
+        'html'          => $html
 	};
 
 #use Data::Dumper;
@@ -272,9 +275,9 @@ be forthcoming, please feel free to (politely) remind me.
 
 =head1 COPYRIGHT & LICENSE
 
-  Copyright (C) 2010-2012 Barbie for Miss Barbell Productions
+  Copyright (C) 2010-2013 Barbie for Miss Barbell Productions
 
-  This module is free software; you can redistribute it and/or
+  This distribution is free software; you can redistribute it and/or
   modify it under the Artistic Licence v2.
 
 =cut
