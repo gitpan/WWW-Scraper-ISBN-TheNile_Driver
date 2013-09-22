@@ -1,6 +1,6 @@
 {
     "name": "WWW-Scraper-ISBN-TheNile_Driver",
-    "version": "0.11",
+    "version": "0.12",
     "abstract": "Search driver for TheNile online book catalog",
     "author": ["Barbie <barbie@cpan.org>"],
 
@@ -45,7 +45,7 @@
     "provides": {
         "WWW::Scraper::ISBN::TheNile_Driver": {
             "file": "lib/WWW/Scraper/ISBN/TheNile_Driver.pm",
-            "version": "0.11"
+            "version": "0.12"
         }
     },
     "no_index": {
@@ -54,6 +54,11 @@
 
     "resources": {
         "license": "http://www.perlfoundation.org/artistic_license_2_0",
-        "bugtracker": { "web": "http://rt.cpan.org/Public/Dist/Display.html?Name=WWW-Scraper-ISBN-TheNile_Driver" }
+        "bugtracker": { "web": "http://rt.cpan.org/Public/Dist/Display.html?Name=WWW-Scraper-ISBN-TheNile_Driver" },
+        "repository": {
+            "url": "git://github.com/barbie/www-scraper-isbn-thenile_driver.git",
+            "web": "http://github.com/barbie/www-scraper-isbn-thenile_driver",
+            "type": "git"
+        }
     }
 }

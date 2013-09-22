@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION @ISA);
-$VERSION = '0.11';
+$VERSION = '0.12';
 
 #--------------------------------------------------------------------------
 
@@ -109,14 +109,14 @@ sub search {
     my $data;
     ($data->{image})                    = $html =~ m!(http://c\d+\.mrcdn\.net/[\w\.\/]+\.jpg)!si;
     ($data->{thumb})                    = $html =~ m!(http://c\d+\.mrcdn\.net/[\w\.\/]+\.jpg)!si;
-    ($data->{isbn13},$data->{isbn10})   = $html =~ m!<li><span>ISBN</span>\s*(\d+)\s*/\s*(\d+)\s*</li>!si;
+    ($data->{isbn13},$data->{isbn10})   = $html =~ m!<li><span>ISBN</span>\s*<div[^>]+>\s*(\d+)\s*/\s*(\d+)\s*</div></li>!si;
     ($data->{author})                   = $html =~ m!<li><span>Authors?</span>\s*((?:<a[^>]+>[^<]+</a>(?:\s*(?:and|,)\s*)?)+)</li>!si;
     ($data->{author})                   = $html =~ m!<li><span>Authors?</span>\s*([^<]+)</li>!si    unless($data->{author});
     ($data->{title})                    = $html =~ m!<li><span>Title</span>\s*([^,<]+)</li>!si;
-    ($data->{publisher})                = $html =~ m!<li><span>Publisher</span>\s*((?:<a[^>]+>[^<]+</a>[,\s]*)+)</li>!si;
+    ($data->{publisher})                = $html =~ m!<li><span>Publisher</span>\s*<div[^>]+>\s*<div[^>]+>\s*([^<]+)</div></div></li>!si;
     ($data->{publisher})                = $html =~ m!<li><span>Publisher</span>\s*([^<]+)</li>!si   unless($data->{publisher});
     ($data->{pubdate})                  = $html =~ m!<li><span>Year</span>\s*([^<]+)</li>!si;
-    ($data->{binding})                  = $html =~ m!<li><span>Format</span>\s*([^<]+)</li>!si;
+    ($data->{binding})                  = $html =~ m!<li><span>Format</span>\s*<div[^>]+>\s*([^<]+)</div></li>!si;
     ($data->{pages})                    = $html =~ m!<li><span>Pages</span>\s*([\d.]+)</li>!si;
     ($data->{weight})                   = $html =~ m!<li><span>Weight</span>\s*(\d+)g</li>!si;
     ($data->{width},$data->{height})    = $html =~ m!<li><span>Dimensions</span>\s*([\d.]+)mm x ([\d.]+)mm(?: x [\d.]+mm)?</li>!si;
