@@ -1,6 +1,13 @@
 Revision history for WWW-Scraper-ISBN-TheNile_Driver
 ====================================================
 
+0.13    2014-07-31
+        - fixed distribution name in META.
+        - upgrade to WWW-Scraper-ISBN-1.00.
+        - conversion routines now moved to WWW::Scraper::ISBN::Driver.
+        - removed conversion tests.
+        - extended test suite.
+
 0.12    2013-09-22
         - added git repository links to metadata.
         - updated pattern matching due to page layout changes.

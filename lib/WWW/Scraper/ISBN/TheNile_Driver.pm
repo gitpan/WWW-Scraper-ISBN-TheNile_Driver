@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION @ISA);
-$VERSION = '0.12';
+$VERSION = '0.13';
 
 #--------------------------------------------------------------------------
 
@@ -76,6 +76,8 @@ a valid page is returned, the following fields are returned via the book hash:
 
 The book_link and image_link refer back to the TheNile website.
 
+=back
+
 =cut
 
 sub search {
@@ -136,6 +138,8 @@ sub search {
 	# trim top and tail
 	foreach (keys %$data) { next unless(defined $data->{$_});$data->{$_} =~ s/^\s+//;$data->{$_} =~ s/\s+$//; }
 
+    my $url = $mech->uri();
+
 	my $bk = {
 		'ean13'		    => $data->{isbn13},
 		'isbn13'		=> $data->{isbn13},
@@ -143,7 +147,7 @@ sub search {
 		'isbn'			=> $data->{isbn13},
 		'author'		=> $data->{author},
 		'title'			=> $data->{title},
-		'book_link'		=> $mech->uri(),
+		'book_link'		=> "$url",
 		'image_link'	=> $data->{image},
 		'thumb_link'	=> $data->{thumb},
 		'description'	=> $data->{description},
@@ -164,79 +168,6 @@ sub search {
     $self->book($bk);
 	$self->found(1);
 	return $self->book;
-}
-
-=item C<convert_to_ean13()>
-
-Given a 10/13 character ISBN, this function will return the correct 13 digit
-ISBN, also known as EAN13.
-
-=item C<convert_to_isbn10()>
-
-Given a 10/13 character ISBN, this function will return the correct 10 digit 
-ISBN.
-
-=back
-
-=cut
-
-sub convert_to_ean13 {
-	my $self = shift;
-    my $isbn = shift;
-    my $prefix;
-
-    return  unless(length $isbn == 10 || length $isbn == 13);
-
-    if(length $isbn == 13) {
-        return  if($isbn !~ /^(978|979)(\d{10})$/);
-        ($prefix,$isbn) = ($1,$2);
-    } else {
-        return  if($isbn !~ /^(\d{10}|\d{9}X)$/);
-        $prefix = '978';
-    }
-
-    my $isbn13 = '978' . $isbn;
-    chop($isbn13);
-    my @isbn = split(//,$isbn13);
-    my ($lsum,$hsum) = (0,0);
-    while(@isbn) {
-        $hsum += shift @isbn;
-        $lsum += shift @isbn;
-    }
-
-    my $csum = ($lsum * 3) + $hsum;
-    $csum %= 10;
-    $csum = 10 - $csum  if($csum != 0);
-
-    return $isbn13 . $csum;
-}
-
-sub convert_to_isbn10 {
-	my $self = shift;
-    my $ean  = shift;
-    my ($isbn,$isbn10);
-
-    return  unless(length $ean == 10 || length $ean == 13);
-
-    if(length $ean == 13) {
-        return  if($ean !~ /^(?:978|979)(\d{9})\d$/);
-        ($isbn,$isbn10) = ($1,$1);
-    } else {
-        return  if($ean !~ /^(\d{9})[\dX]$/);
-        ($isbn,$isbn10) = ($1,$1);
-    }
-
-	return  if($isbn < 0 or $isbn > 999999999);
-
-	my ($csum, $pos, $digit) = (0, 0, 0);
-    for ($pos = 9; $pos > 0; $pos--) {
-        $digit = $isbn % 10;
-        $isbn /= 10;             # Decimal shift ISBN for next time 
-        $csum += ($pos * $digit);
-    }
-    $csum %= 11;
-    $csum = 'X'   if ($csum == 10);
-    return $isbn10 . $csum;
 }
 
 1;
@@ -275,7 +206,7 @@ be forthcoming, please feel free to (politely) remind me.
 
 =head1 COPYRIGHT & LICENSE
 
-  Copyright (C) 2010-2013 Barbie for Miss Barbell Productions
+  Copyright (C) 2010-2014 Barbie for Miss Barbell Productions
 
   This distribution is free software; you can redistribute it and/or
   modify it under the Artistic Licence v2.
