@@ -8,7 +8,7 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile(
     AUTHOR              => 'Barbie <barbie@cpan.org>',
-    NAME                => 'WWW-Scraper-ISBN-TheNile_Driver',
+    NAME                => 'WWW::Scraper::ISBN::TheNile_Driver',
     VERSION_FROM        => 'lib/WWW/Scraper/ISBN/TheNile_Driver.pm',
     ABSTRACT            => 'Search driver for TheNile online book catalog',
     NO_META             => 1,
